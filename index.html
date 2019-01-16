@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Gif</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        .giftopic-btn, #add-giftopic {
+            min-width: 50px;
+            padding: 5px 10px;
+            margin: 5px 5px;;
+            display: inline-block;
+            color: white;
+            background-color: #008CBA;
+            font-size: 16px;
+        }
+        p {
+            color: blue;
+        }
+        .gifDiv {
+            /* width: 300px; */
+            float: left;
+            margin: 0 20px 20px 0;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Gif Search</h1>
+
+        <!-- gif buttons will get dumped here -->
+        <div id="button-view"></div>
+
+        <form id="giftopic-form">
+            <label for="giftopic-input">Add an Animal!</label>
+            <input type="text" id="giftopic-input"><br>
+
+            <!-- Button triggers new topic to be added -->
+            <input id="add-giftopic" type="submit" value="Submit">
+        </form>
+
+        <div id="gif-view"></div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            // Initial array of topics
+            var topics = ["dog", "cat", "rabbit", "frog"];
+
+            // Function for displaying gif data
+            function renderButtons() {
+                console.log(topics);
+                $("#button-view").empty();
+                topics.forEach(function (thisTopic) {
+                    var a = $("<button class='giftopic-btn'>").text(thisTopic);
+                    a.attr("data-giftopic", thisTopic);
+                    $("#button-view").append(a);
+                });
+            }
+
+            // displayGifInfo
+            function displayGifInfo() {
+                thisTopic = $(this).attr("data-giftopic");
+                console.log("clicked: " + thisTopic);
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + thisTopic + "&api_key=dc6zaTOxFJmzC&limit=10"
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                }).then(function (response, status, xhr) {
+                    console.log(response);
+                    var results = response.data;
+                    $("#gif-view").empty();
+                    for (var i = 0; i < results.length; i++) {
+                        var gifDiv = $("<div/>", { "class": "gifDiv" });
+                        var p = $("<p>").text("Rating: " + results[i].rating);
+                        var gifImg = $("<img/>", { "class": "gif" });
+                        // console.log(results[i]["images"]["fixed_height"]);
+                        gifImg.attr("src", results[i]["images"]["fixed_height_still"]["url"]);
+                        gifImg.attr("data-still", results[i]["images"]["fixed_height_still"]["url"]);
+                        gifImg.attr("data-animate", results[i]["images"]["fixed_height"]["url"]);
+                        gifImg.attr("data-state", "still");
+                        gifDiv.append(p);
+                        gifDiv.append(gifImg);
+                        $("#gif-view").append(gifDiv);
+                    }
+                });
+            }
+
+            // This function handles events where one button is clicked
+            $("#add-giftopic").on("click", function (event) {
+                event.preventDefault();
+                newTopic = $("#giftopic-input").val();
+                topics.push(newTopic);
+                renderButtons();
+            });
+
+
+            $(document).on("click", ".giftopic-btn", displayGifInfo)
+
+            // Calling the renderButtons function to display the initial list of topics
+            renderButtons();
+
+            $(document.body).on("click", ".gif", function () {
+                // $(".gif").on("click", function () {
+                // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
+                var state = $(this).attr("data-state");
+                console.log("state=" + state);
+                // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+                // Then, set the image's data-state to animate
+                // Else set src to the data-still value
+                if (state === "still") {
+                    $(this).attr("src", $(this).attr("data-animate"));
+                    $(this).attr("data-state", "animate");
+                } else {
+                    $(this).attr("src", $(this).attr("data-still"));
+                    $(this).attr("data-state", "still");
+                }
+            });
+        </script>
+    </div>
+</body>
+
+</html>
