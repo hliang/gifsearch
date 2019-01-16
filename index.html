@@ -11,7 +11,7 @@
         .giftopic-btn, #add-giftopic {
             min-width: 50px;
             padding: 5px 10px;
-            margin: 5px 5px;;
+            margin: 0 5px 5px 0;
             display: inline-block;
             color: white;
             background-color: #008CBA;
@@ -24,6 +24,9 @@
             /* width: 300px; */
             float: left;
             margin: 0 20px 20px 0;
+        }
+        #gif-view {
+            max-width: 60%;
         }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -63,16 +66,16 @@
                 });
             }
 
-            // displayGifInfo
+            // send request to giphy api, process response, and display images on page
             function displayGifInfo() {
                 thisTopic = $(this).attr("data-giftopic");
                 console.log("clicked: " + thisTopic);
-                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + thisTopic + "&api_key=dc6zaTOxFJmzC&limit=10"
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + thisTopic + "&api_key=dc6zaTOxFJmzC&limit=20"
                 $.ajax({
                     url: queryURL,
                     method: "GET"
                 }).then(function (response, status, xhr) {
-                    console.log(response);
+                    // console.log(response);
                     var results = response.data;
                     $("#gif-view").empty();
                     for (var i = 0; i < results.length; i++) {
@@ -91,21 +94,8 @@
                 });
             }
 
-            // This function handles events where one button is clicked
-            $("#add-giftopic").on("click", function (event) {
-                event.preventDefault();
-                newTopic = $("#giftopic-input").val();
-                topics.push(newTopic);
-                renderButtons();
-            });
-
-
-            $(document).on("click", ".giftopic-btn", displayGifInfo)
-
-            // Calling the renderButtons function to display the initial list of topics
-            renderButtons();
-
-            $(document.body).on("click", ".gif", function () {
+            // toggle still/animate gif
+            function toggleGifAnimate () {
                 // $(".gif").on("click", function () {
                 // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
                 var state = $(this).attr("data-state");
@@ -120,7 +110,29 @@
                     $(this).attr("src", $(this).attr("data-still"));
                     $(this).attr("data-state", "still");
                 }
+            }
+
+            // This function handles events when the submit button is clicked
+            // add a button for new topic
+            $("#add-giftopic").on("click", function (event) {
+                event.preventDefault();
+                newTopic = $("#giftopic-input").val().trim();
+                if (newTopic === "") {
+                    return;
+                }
+                topics.push(newTopic);
+                renderButtons();
+                $("#giftopic-input").val("");
             });
+
+            // display images of a topic
+            $(document).on("click", ".giftopic-btn", displayGifInfo)
+
+            // Calling the renderButtons function to display the initial list of topics
+            renderButtons();
+
+            // toggle between still/animate image
+            $(document.body).on("click", ".gif", toggleGifAnimate);
         </script>
     </div>
 </body>
