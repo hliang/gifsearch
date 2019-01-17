@@ -18,7 +18,7 @@
             font-size: 16px;
         }
         p {
-            color: blue;
+            color: black;
         }
         .gifDiv {
             /* width: 300px; */
@@ -26,7 +26,7 @@
             margin: 0 20px 20px 0;
         }
         #gif-view {
-            max-width: 60%;
+            max-width: 95%;
         }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,6 +37,7 @@
     <div class="container">
         <h1>Gif Search</h1>
 
+        <p>click a topic to show gifs</p>
         <!-- gif buttons will get dumped here -->
         <div id="button-view"></div>
 
@@ -53,7 +54,15 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script type="text/javascript">
             // Initial array of topics
-            var topics = ["dog", "cat", "rabbit", "frog"];
+            var topics = ["dog", "cat", "rabbit", "frog"]; // default list
+            var topicsLocal = JSON.parse(localStorage.getItem("giftopics"));
+            if (topicsLocal == null) {
+                console.log("using default topic list");
+            } else {
+                topics = topicsLocal;
+                console.log("using locally stored topic list");
+            }
+
 
             // Function for displaying gif data
             function renderButtons() {
@@ -121,6 +130,7 @@
                     return;
                 }
                 topics.push(newTopic);
+                localStorage.setItem("giftopics", JSON.stringify(topics));
                 renderButtons();
                 $("#giftopic-input").val("");
             });
